@@ -10,7 +10,7 @@ import { Calendar } from "@/components/ui/calendar"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { Progress } from "@/components/ui/progress"
 
-const emotions = {
+const emotions: { [key: string]: string } = {
   happy: '😊',
   sad: '😢',
   angry: '😠',
@@ -18,7 +18,7 @@ const emotions = {
   anxious: '😰',
 }
 
-const activities = {
+const activities: { [key: string]: string[] } = {
   happy: ['Chia sẻ niềm vui với bạn bè', 'Ghi nhật ký về những điều tích cực'],
   sad: ['Nghe nhạc yêu thích', 'Đi dạo trong công viên'],
   angry: ['Thực hành hít thở sâu', 'Viết ra những suy nghĩ của bạn'],
@@ -26,16 +26,35 @@ const activities = {
   anxious: ['Thực hành thiền 5 phút', 'Nói chuyện với người bạn tin tưởng'],
 }
 
+interface EmotionData {
+  [key: string]: string
+}
+
+interface JournalData {
+  [key: string]: string
+}
+
+interface ConsultationData {
+  name: string
+  email: string
+  reason: string
+}
+
+interface EmotionGoal {
+  emotion: string
+  days: number
+}
+
 export function EmotionCalendarComponent() {
   const [selectedDate, setSelectedDate] = useState(new Date())
-  const [emotionData, setEmotionData] = useState({})
-  const [journalData, setJournalData] = useState({})
+  const [emotionData, setEmotionData] = useState<EmotionData>({})
+  const [journalData, setJournalData] = useState<JournalData>({})
   const [showJournal, setShowJournal] = useState(false)
   const [showStressTest, setShowStressTest] = useState(false)
   const [stressScore, setStressScore] = useState(0)
   const [showConsultation, setShowConsultation] = useState(false)
-  const [consultationData, setConsultationData] = useState({ name: '', email: '', reason: '' })
-  const [emotionGoal, setEmotionGoal] = useState({ emotion: '', days: 0 })
+  const [consultationData, setConsultationData] = useState<ConsultationData>({ name: '', email: '', reason: '' })
+  const [emotionGoal, setEmotionGoal] = useState<EmotionGoal>({ emotion: '', days: 0 })
   const [goalProgress, setGoalProgress] = useState(0)
 
   useEffect(() => {
@@ -69,12 +88,12 @@ export function EmotionCalendarComponent() {
     }
   }, [emotionData, emotionGoal])
 
-  const handleDateSelect = (date) => {
+  const handleDateSelect = (date : any) => {
     setSelectedDate(date)
     setShowJournal(true)
   }
 
-  const handleEmotionSelect = (emotion) => {
+  const handleEmotionSelect = (emotion: any) => {
     const dateString = selectedDate.toISOString().split('T')[0]
     setEmotionData(prev => ({
       ...prev,
@@ -82,7 +101,7 @@ export function EmotionCalendarComponent() {
     }))
   }
 
-  const handleJournalEntry = (e) => {
+  const handleJournalEntry = (e: any) => {
     const dateString = selectedDate.toISOString().split('T')[0]
     setJournalData(prev => ({
       ...prev,
@@ -90,7 +109,7 @@ export function EmotionCalendarComponent() {
     }))
   }
 
-  const handleStressTest = (score) => {
+  const handleStressTest = (score: any) => {
     setStressScore(score)
     setShowStressTest(false)
     if (score > 7) {
@@ -98,7 +117,7 @@ export function EmotionCalendarComponent() {
     }
   }
 
-  const handleConsultationSubmit = (e) => {
+  const handleConsultationSubmit = (e: any) => {
     e.preventDefault()
     // Here you would typically send this data to your backend
     console.log('Consultation request:', consultationData)
@@ -107,7 +126,7 @@ export function EmotionCalendarComponent() {
     setConsultationData({ name: '', email: '', reason: '' })
   }
 
-  const handleEmotionGoalSet = (e) => {
+  const handleEmotionGoalSet = (e: any) => {
     e.preventDefault()
     const form = e.target
     const emotion = form.emotion.value
@@ -117,9 +136,11 @@ export function EmotionCalendarComponent() {
 
   const getEmotionStats = () => {
     const stats = Object.values(emotionData).reduce((acc, emotion) => {
-      acc[emotion] = (acc[emotion] || 0) + 1
+      if (typeof emotion === 'string') {
+        acc[emotion] = (acc[emotion] || 0) + 1
+      }
       return acc
-    }, {})
+    }, {} as { [key: string]: number })
     return Object.entries(stats).map(([name, count]) => ({ name, count }))
   }
 
